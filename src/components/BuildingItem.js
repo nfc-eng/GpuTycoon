@@ -4,7 +4,8 @@ import {useGame} from '../context/GameContext';
 
 export default function BuildingItem({building, index}) {
   const {setSelectedBuilding} = useGame();
-  const color = ['#38D39F', '#F5A623', '#FF4C4C'][building.cooling.tier] || '#38D39F';
+  const throttleColors = {Green: '#38D39F', Yellow: '#F5A623', Red: '#FF4C4C'};
+  const color = throttleColors[building.throttleState] || '#38D39F';
   const totalGpus = building.gpuCounts.reduce((sum, c) => sum + c, 0);
 
   return (
@@ -19,10 +20,14 @@ export default function BuildingItem({building, index}) {
         <Text style={styles.value}>{totalGpus}</Text>
       </View>
       <View style={styles.row}>
-        <Text style={styles.label}>Cooling:</Text>
+        <Text style={styles.label}>Status:</Text>
         <View style={[styles.badge, {backgroundColor: color}]}>
-          <Text style={styles.badgeText}>{['Evap', 'Liquid', 'Nitro'][building.cooling.tier]}</Text>
+          <Text style={styles.badgeText}>{building.throttleState}</Text>
         </View>
+      </View>
+      <View style={styles.row}>
+        <Text style={styles.label}>Heat:</Text>
+        <Text style={styles.value}>{building.currentHeat.toFixed(1)}</Text>
       </View>
     </TouchableOpacity>
   );
