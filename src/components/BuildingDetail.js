@@ -1,7 +1,8 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, StyleSheet, ScrollView} from 'react-native';
+import {View, Text, TouchableOpacity, StyleSheet, ScrollView, useColorScheme} from 'react-native';
 import {useGame} from '../context/GameContext';
 import GPU_TYPES from '../constants/gpuTypes';
+import {palette, accent} from '../constants/theme';
 import {
   buyGPU as buyGPUAction,
   sellGPU as sellGPUAction,
@@ -10,6 +11,9 @@ import {
 
 export default function BuildingDetail({index, goBack}) {
   const {state, setState} = useGame();
+  const scheme = useColorScheme();
+  const colors = palette[scheme] || palette.dark;
+  const styles = getStyles(colors);
   const b = state.buildings[index];
 
   const buyGPU = gpuType => {
@@ -55,10 +59,10 @@ export default function BuildingDetail({index, goBack}) {
             {
               backgroundColor:
                 b.throttleState === 'Green'
-                  ? '#38D39F'
+                  ? accent.success
                   : b.throttleState === 'Yellow'
-                  ? '#F5A623'
-                  : '#FF4C4C',
+                  ? accent.warning
+                  : accent.error,
             },
           ]}>
           <Text style={styles.badgeText}>{b.throttleState}</Text>
@@ -101,20 +105,21 @@ export default function BuildingDetail({index, goBack}) {
   );
 }
 
-const styles = StyleSheet.create({
-  detailContainer: {flex: 1, padding: 16, backgroundColor: '#1E1E1E'},
-  backButton: {marginBottom: 16},
-  backText: {color: '#007AFF', fontSize: 16},
-  detailTitle: {fontSize: 22, fontWeight: '700', color: '#FFF', marginBottom: 16},
-  earnings: {color: '#A6E22E', fontSize: 16, marginBottom: 12},
-  gpuSection: {marginBottom: 12},
-  row: {flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8},
-  label: {color: '#CCC', fontSize: 14},
-  value: {color: '#FFF', fontSize: 14, fontWeight: '500'},
-  actionButton: {backgroundColor: '#007AFF', padding: 12, borderRadius: 8, alignItems: 'center', marginVertical: 8},
-  coolButton: {backgroundColor: '#FF9500'},
-  sellButton: {backgroundColor: '#FF3B30'},
-  buttonText: {color: '#FFF', fontSize: 16, fontWeight: '600'},
-  badge: {borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4},
-  badgeText: {color: '#FFF', fontSize: 12, fontWeight: 'bold'},
-});
+const getStyles = c =>
+  StyleSheet.create({
+    detailContainer: {flex: 1, padding: 16, backgroundColor: c.background},
+    backButton: {marginBottom: 16},
+    backText: {color: accent.primary, fontSize: 16},
+    detailTitle: {fontSize: 22, fontWeight: '700', color: c.textPrimary, marginBottom: 16},
+    earnings: {color: accent.success, fontSize: 16, marginBottom: 12},
+    gpuSection: {marginBottom: 12},
+    row: {flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8},
+    label: {color: c.textSecondary, fontSize: 14},
+    value: {color: c.textPrimary, fontSize: 14, fontWeight: '500'},
+    actionButton: {backgroundColor: accent.primary, padding: 12, borderRadius: 8, alignItems: 'center', marginVertical: 8},
+    coolButton: {backgroundColor: accent.warning},
+    sellButton: {backgroundColor: accent.error},
+    buttonText: {color: '#FFF', fontSize: 16, fontWeight: '600'},
+    badge: {borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4},
+    badgeText: {color: '#FFF', fontSize: 12, fontWeight: 'bold'},
+  });

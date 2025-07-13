@@ -1,12 +1,16 @@
 import React, {useState} from 'react';
-import {View, TouchableOpacity, Text, StyleSheet} from 'react-native';
+import {View, TouchableOpacity, Text, StyleSheet, useColorScheme} from 'react-native';
 import {useGame} from '../context/GameContext';
 import SIZE_PRESETS from '../constants/sizePresets';
 import {addBuilding} from '../utils/gameActions';
+import {palette, accent} from '../constants/theme';
 
 export default function AddBuildingButton() {
   const {state, setState} = useGame();
   const [showOptions, setShowOptions] = useState(false);
+  const scheme = useColorScheme();
+  const colors = palette[scheme] || palette.dark;
+  const styles = getStyles(colors);
 
   const add = preset => {
     if (state.money >= preset.purchaseCost) {
@@ -33,12 +37,13 @@ export default function AddBuildingButton() {
   );
 }
 
-const styles = StyleSheet.create({
-  sizeContainer: {flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-around', margin: 16},
-  sizeButton: {backgroundColor: '#50E3C2', padding: 12, borderRadius: 8, margin: 4, flexGrow: 1, alignItems: 'center'},
-  sizeText: {color: '#1E1E1E', fontSize: 12, fontWeight: '600'},
-  cancelButton: {marginTop: 8, alignItems: 'center'},
-  cancelText: {color: '#FF3B30', fontSize: 16},
-  buyButton: {margin: 16, backgroundColor: '#007AFF', paddingVertical: 14, borderRadius: 24, alignItems: 'center'},
-  buyText: {color: '#FFF', fontSize: 16, fontWeight: '700'},
-});
+const getStyles = c =>
+  StyleSheet.create({
+    sizeContainer: {flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-around', margin: 16},
+    sizeButton: {backgroundColor: accent.secondary, padding: 12, borderRadius: 8, margin: 4, flexGrow: 1, alignItems: 'center'},
+    sizeText: {color: c.textPrimary, fontSize: 12, fontWeight: '600'},
+    cancelButton: {marginTop: 8, alignItems: 'center'},
+    cancelText: {color: accent.error, fontSize: 16},
+    buyButton: {margin: 16, backgroundColor: accent.primary, paddingVertical: 14, borderRadius: 24, alignItems: 'center'},
+    buyText: {color: '#FFF', fontSize: 16, fontWeight: '700'},
+  });
