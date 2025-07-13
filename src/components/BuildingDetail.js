@@ -2,7 +2,11 @@ import React from 'react';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import {useGame} from '../context/GameContext';
 import GPU_TYPES from '../constants/gpuTypes';
-import {buyGPU as buyGPUAction, upgradeCooling as upgradeCoolingAction} from '../utils/gameActions';
+import {
+  buyGPU as buyGPUAction,
+  sellGPU as sellGPUAction,
+  upgradeCooling as upgradeCoolingAction,
+} from '../utils/gameActions';
 
 export default function BuildingDetail({index, goBack}) {
   const {state, setState} = useGame();
@@ -10,6 +14,10 @@ export default function BuildingDetail({index, goBack}) {
 
   const buyGPU = gpuType => {
     setState(s => buyGPUAction(s, index, gpuType));
+  };
+
+  const sellGPU = gpuType => {
+    setState(s => sellGPUAction(s, index, gpuType));
   };
 
   const upgradeCooling = () => {
@@ -20,6 +28,7 @@ export default function BuildingDetail({index, goBack}) {
     (sum, c, i) => sum + c * GPU_TYPES[i].income,
     0,
   );
+  const usedRacks = b.gpuCounts.reduce((sum, c) => sum + c, 0);
 
   return (
     <View style={styles.detailContainer}>
@@ -31,6 +40,12 @@ export default function BuildingDetail({index, goBack}) {
       <View style={styles.row}>
         <Text style={styles.label}>Capacity:</Text>
         <Text style={styles.value}>{b.size.capacity}</Text>
+      </View>
+      <View style={styles.row}>
+        <Text style={styles.label}>Racks Used:</Text>
+        <Text style={styles.value}>
+          {usedRacks} / {b.size.capacity}
+        </Text>
       </View>
       <View style={styles.row}>
         <Text style={styles.label}>Status:</Text>
@@ -67,6 +82,12 @@ export default function BuildingDetail({index, goBack}) {
             disabled={state.money < t.cost}>
             <Text style={styles.buttonText}>Buy (${t.cost})</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => sellGPU(i)}
+            style={[styles.actionButton, styles.sellButton]}
+            disabled={b.gpuCounts[i] === 0}>
+            <Text style={styles.buttonText}>Sell (+${t.cost / 2})</Text>
+          </TouchableOpacity>
         </View>
       ))}
       <TouchableOpacity
@@ -92,6 +113,7 @@ const styles = StyleSheet.create({
   value: {color: '#FFF', fontSize: 14, fontWeight: '500'},
   actionButton: {backgroundColor: '#007AFF', padding: 12, borderRadius: 8, alignItems: 'center', marginVertical: 8},
   coolButton: {backgroundColor: '#FF9500'},
+  sellButton: {backgroundColor: '#FF3B30'},
   buttonText: {color: '#FFF', fontSize: 16, fontWeight: '600'},
   badge: {borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4},
   badgeText: {color: '#FFF', fontSize: 12, fontWeight: 'bold'},

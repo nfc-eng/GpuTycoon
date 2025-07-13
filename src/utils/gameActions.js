@@ -48,6 +48,25 @@ export function buyGPU(state, buildingIndex, gpuTypeIndex) {
   };
 }
 
+export function sellGPU(state, buildingIndex, gpuTypeIndex) {
+  const building = state.buildings[buildingIndex];
+  const gpu = GPU_TYPES[gpuTypeIndex];
+  if (!building || !gpu) return state;
+  if (building.gpuCounts[gpuTypeIndex] <= 0) return state;
+  const updated = [...state.buildings];
+  const newCounts = [...building.gpuCounts];
+  newCounts[gpuTypeIndex] -= 1;
+  updated[buildingIndex] = {
+    ...building,
+    gpuCounts: newCounts,
+  };
+  return {
+    ...state,
+    money: state.money + gpu.cost / 2,
+    buildings: updated,
+  };
+}
+
 export function upgradeCooling(state, index) {
   const building = state.buildings[index];
   if (!building) return state;
