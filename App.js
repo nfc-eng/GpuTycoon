@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {SafeAreaView, View, Text, FlatList, StatusBar, StyleSheet, Platform} from 'react-native';
+import {SafeAreaView, View, Text, FlatList, StatusBar, StyleSheet, Platform, useColorScheme} from 'react-native';
 import GameContext from './src/context/GameContext';
 import SIZE_PRESETS from './src/constants/sizePresets';
 import GPU_TYPES from './src/constants/gpuTypes';
@@ -7,6 +7,7 @@ import BuildingItem from './src/components/BuildingItem';
 import BuildingDetail from './src/components/BuildingDetail';
 import AddBuildingButton from './src/components/AddBuildingButton';
 import {tick} from './src/utils/simEngine';
+import {palette, accent} from './src/constants/theme';
 
 const initialState = {
   money: SIZE_PRESETS[0].purchaseCost + 2 * GPU_TYPES[0].cost,
@@ -16,6 +17,9 @@ const initialState = {
 export default function App() {
   const [state, setState] = useState(initialState);
   const [selectedBuilding, setSelectedBuilding] = useState(null);
+  const scheme = useColorScheme();
+  const colors = palette[scheme] || palette.dark;
+  const styles = getStyles(colors);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -54,10 +58,20 @@ export default function App() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: {flex: 1, backgroundColor: '#1E1E1E', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0},
-  headerContainer: {padding: 16, backgroundColor: '#252526', borderBottomWidth: 1, borderBottomColor: '#3C3C3C'},
-  header: {fontSize: 28, fontWeight: 'bold', color: '#FFF'},
-  money: {marginTop: 4, fontSize: 20, color: '#A6E22E'},
-  list: {padding: 16},
-});
+const getStyles = c =>
+  StyleSheet.create({
+    safeArea: {
+      flex: 1,
+      backgroundColor: c.background,
+      paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    },
+    headerContainer: {
+      padding: 16,
+      backgroundColor: c.secondarySurface,
+      borderBottomWidth: 1,
+      borderBottomColor: c.divider,
+    },
+    header: {fontSize: 28, fontWeight: 'bold', color: c.textPrimary},
+    money: {marginTop: 4, fontSize: 20, color: accent.success},
+    list: {padding: 16},
+  });

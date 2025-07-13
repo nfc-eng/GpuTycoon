@@ -9,6 +9,7 @@ jest.mock('react-native', () => {
     RN[tag] = props => React.createElement(tag, props, props.children);
   });
   RN.StyleSheet = {create: styles => styles};
+  RN.useColorScheme = () => 'dark';
   return RN;
 });
 import BuildingDetail from '../src/components/BuildingDetail';
