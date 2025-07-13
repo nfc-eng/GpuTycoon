@@ -18,14 +18,25 @@ describe('cooling & throttling system', () => {
     const state = {money: 0, buildings: [b]};
 
     let s = tick(state); // tick1
-    expect(s.money).toBeCloseTo(20);
+    expect(s.money).toBeCloseTo(10);
     expect(s.buildings[0].currentHeat).toBe(10);
+    expect(s.buildings[0].throttleState).toBe('Yellow');
     s = tick(s); // tick2
-    expect(s.money).toBeCloseTo(30);
+    expect(s.money).toBeCloseTo(15);
     expect(s.buildings[0].currentHeat).toBe(20);
+    expect(s.buildings[0].throttleState).toBe('Red');
     s = tick(s); // tick3
-    expect(s.money).toBeCloseTo(35);
+    expect(s.money).toBeCloseTo(20);
     expect(s.buildings[0].currentHeat).toBe(30);
     expect(s.buildings[0].throttleState).toBe('Red');
+  });
+
+  test('immediate throttling when heat exceeds capacity', () => {
+    const b = createBuilding(SIZE_PRESETS[0]);
+    b.gpuCounts[0] = 15; // generates 15 heat per tick
+    const state = {money: 0, buildings: [b]};
+
+    const s = tick(state);
+    expect(s.buildings[0].throttleState).toBe('Yellow');
   });
 });
