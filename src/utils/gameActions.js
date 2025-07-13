@@ -1,10 +1,9 @@
+import GPU_TYPES from '../constants/gpuTypes';
+
 export function createBuilding(preset) {
   return {
     size: preset,
-    gpus: 0,
-    gpuCost: 100 * Math.pow(2, preset.costMultiplier),
-    gpuIncome: 1,
-    incomePerTick: 0,
+    gpuCounts: GPU_TYPES.map(() => 0),
     cooling: {
       tier: 0,
       costs: [
@@ -26,19 +25,22 @@ export function addBuilding(state, preset) {
   };
 }
 
-export function buyGPU(state, index) {
-  const building = state.buildings[index];
-  if (!building) return state;
-  if (state.money < building.gpuCost || building.gpus >= building.size.capacity) return state;
+export function buyGPU(state, buildingIndex, gpuTypeIndex) {
+  const building = state.buildings[buildingIndex];
+  const gpu = GPU_TYPES[gpuTypeIndex];
+  if (!building || !gpu) return state;
+  const total = building.gpuCounts.reduce((sum, c) => sum + c, 0);
+  if (state.money < gpu.cost || total >= building.size.capacity) return state;
   const updated = [...state.buildings];
-  updated[index] = {
+  const newCounts = [...building.gpuCounts];
+  newCounts[gpuTypeIndex] += 1;
+  updated[buildingIndex] = {
     ...building,
-    gpus: building.gpus + 1,
-    incomePerTick: building.incomePerTick + building.gpuIncome,
+    gpuCounts: newCounts,
   };
   return {
     ...state,
-    money: state.money - building.gpuCost,
+    money: state.money - gpu.cost,
     buildings: updated,
   };
 }

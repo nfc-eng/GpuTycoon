@@ -5,6 +5,7 @@ import {useGame} from '../context/GameContext';
 export default function BuildingItem({building, index}) {
   const {setSelectedBuilding} = useGame();
   const color = ['#38D39F', '#F5A623', '#FF4C4C'][building.cooling.tier] || '#38D39F';
+  const totalGpus = building.gpuCounts.reduce((sum, c) => sum + c, 0);
 
   return (
     <TouchableOpacity onPress={() => setSelectedBuilding(index)} style={styles.card}>
@@ -15,7 +16,7 @@ export default function BuildingItem({building, index}) {
       </View>
       <View style={styles.row}>
         <Text style={styles.label}>GPUs:</Text>
-        <Text style={styles.value}>{building.gpus}</Text>
+        <Text style={styles.value}>{totalGpus}</Text>
       </View>
       <View style={styles.row}>
         <Text style={styles.label}>Cooling:</Text>

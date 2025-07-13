@@ -2,12 +2,13 @@ import React, {useState, useEffect} from 'react';
 import {SafeAreaView, View, Text, FlatList, StatusBar, StyleSheet, Platform} from 'react-native';
 import GameContext from './src/context/GameContext';
 import SIZE_PRESETS from './src/constants/sizePresets';
+import GPU_TYPES from './src/constants/gpuTypes';
 import BuildingItem from './src/components/BuildingItem';
 import BuildingDetail from './src/components/BuildingDetail';
 import AddBuildingButton from './src/components/AddBuildingButton';
 
 const initialState = {
-  money: SIZE_PRESETS[0].purchaseCost + 2 * (100 * Math.pow(2, SIZE_PRESETS[0].costMultiplier)),
+  money: SIZE_PRESETS[0].purchaseCost + 2 * GPU_TYPES[0].cost,
   buildings: [],
 };
 
@@ -17,7 +18,15 @@ export default function App() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      const income = state.buildings.reduce((sum, b) => sum + b.incomePerTick, 0);
+      const income = state.buildings.reduce((sum, b) => {
+        return (
+          sum +
+          b.gpuCounts.reduce(
+            (iSum, count, idx) => iSum + count * GPU_TYPES[idx].income,
+            0,
+          )
+        );
+      }, 0);
       setState(s => ({...s, money: s.money + income}));
     }, 1000);
     return () => clearInterval(interval);
