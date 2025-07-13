@@ -3,10 +3,13 @@ import {View, Text, TouchableOpacity, StyleSheet, ScrollView, useColorScheme} fr
 import {useGame} from '../context/GameContext';
 import GPU_TYPES from '../constants/gpuTypes';
 import {palette, accent} from '../constants/theme';
+import POWER_TIERS from '../constants/powerTiers';
 import {
   buyGPU as buyGPUAction,
   sellGPU as sellGPUAction,
   upgradeCooling as upgradeCoolingAction,
+  upgradePower as upgradePowerAction,
+  downgradePower as downgradePowerAction,
 } from '../utils/gameActions';
 
 export default function BuildingDetail({index, goBack}) {
@@ -26,6 +29,14 @@ export default function BuildingDetail({index, goBack}) {
 
   const upgradeCooling = () => {
     setState(s => upgradeCoolingAction(s, index));
+  };
+
+  const upgradePower = () => {
+    setState(s => upgradePowerAction(s, index));
+  };
+
+  const downgradePower = () => {
+    setState(s => downgradePowerAction(s, index));
   };
 
   const earnings = b.gpuCounts.reduce(
@@ -72,6 +83,18 @@ export default function BuildingDetail({index, goBack}) {
         <Text style={styles.label}>Heat:</Text>
         <Text style={styles.value}>{b.currentHeat.toFixed(1)}</Text>
       </View>
+      <View style={styles.row}>
+        <Text style={styles.label}>Power Draw:</Text>
+        <Text style={styles.value}>{b.currentPowerDraw.toFixed(1)} kW/s</Text>
+      </View>
+      <View style={styles.row}>
+        <Text style={styles.label}>Power Cost:</Text>
+        <Text style={styles.value}>${b.currentPowerCost.toFixed(2)}/s</Text>
+      </View>
+      <View style={styles.row}>
+        <Text style={styles.label}>Tier:</Text>
+        <Text style={styles.value}>{POWER_TIERS[b.power.tier].label}</Text>
+      </View>
       {GPU_TYPES.map((t, i) => (
         <View key={i} style={styles.gpuSection}>
           <View style={styles.row}>
@@ -99,6 +122,21 @@ export default function BuildingDetail({index, goBack}) {
         style={[styles.actionButton, styles.coolButton]}>
         <Text style={styles.buttonText}>
           Upgrade Cooling (${b.cooling.costs[b.cooling.tier]})
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={upgradePower}
+        style={[styles.actionButton, styles.coolButton]}>
+        <Text style={styles.buttonText}>
+          Upgrade Power (${POWER_TIERS[b.power.tier + 1] ? POWER_TIERS[b.power.tier + 1].purchaseCost : 'MAX'})
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={downgradePower}
+        style={[styles.actionButton, styles.sellButton]}
+        disabled={b.power.tier === 0}>
+        <Text style={styles.buttonText}>
+          Downgrade Power (+${POWER_TIERS[b.power.tier].purchaseCost / 2})
         </Text>
       </TouchableOpacity>
     </ScrollView>

@@ -39,6 +39,13 @@ export default function BuildingItem({building, index}) {
         <Text style={styles.label}>Heat:</Text>
         <Text style={styles.value}>{building.currentHeat.toFixed(1)}</Text>
       </View>
+      <View style={styles.row}>
+        <Text style={styles.label}>Power:</Text>
+        <Text style={styles.value}>
+          {building.currentPowerDraw.toFixed(1)} kW @{' '}
+          {building.power.tier + 1}
+        </Text>
+      </View>
     </TouchableOpacity>
   );
 }
