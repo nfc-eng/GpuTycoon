@@ -32,6 +32,27 @@ export default function BuildingDetail({index, goBack}) {
         <Text style={styles.label}>Capacity:</Text>
         <Text style={styles.value}>{b.size.capacity}</Text>
       </View>
+      <View style={styles.row}>
+        <Text style={styles.label}>Status:</Text>
+        <View
+          style={[
+            styles.badge,
+            {
+              backgroundColor:
+                b.throttleState === 'Green'
+                  ? '#38D39F'
+                  : b.throttleState === 'Yellow'
+                  ? '#F5A623'
+                  : '#FF4C4C',
+            },
+          ]}>
+          <Text style={styles.badgeText}>{b.throttleState}</Text>
+        </View>
+      </View>
+      <View style={styles.row}>
+        <Text style={styles.label}>Heat:</Text>
+        <Text style={styles.value}>{b.currentHeat.toFixed(1)}</Text>
+      </View>
       {GPU_TYPES.map((t, i) => (
         <View key={i} style={styles.gpuSection}>
           <View style={styles.row}>
@@ -72,4 +93,6 @@ const styles = StyleSheet.create({
   actionButton: {backgroundColor: '#007AFF', padding: 12, borderRadius: 8, alignItems: 'center', marginVertical: 8},
   coolButton: {backgroundColor: '#FF9500'},
   buttonText: {color: '#FFF', fontSize: 16, fontWeight: '600'},
+  badge: {borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4},
+  badgeText: {color: '#FFF', fontSize: 12, fontWeight: 'bold'},
 });

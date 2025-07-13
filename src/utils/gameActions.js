@@ -12,6 +12,9 @@ export function createBuilding(preset) {
         10000 * preset.costMultiplier,
       ],
     },
+    currentHeat: 0,
+    effectiveIncome: 0,
+    throttleState: 'Green',
   };
 }
 

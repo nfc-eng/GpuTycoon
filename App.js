@@ -6,6 +6,7 @@ import GPU_TYPES from './src/constants/gpuTypes';
 import BuildingItem from './src/components/BuildingItem';
 import BuildingDetail from './src/components/BuildingDetail';
 import AddBuildingButton from './src/components/AddBuildingButton';
+import {tick} from './src/utils/simEngine';
 
 const initialState = {
   money: SIZE_PRESETS[0].purchaseCost + 2 * GPU_TYPES[0].cost,
@@ -18,19 +19,10 @@ export default function App() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      const income = state.buildings.reduce((sum, b) => {
-        return (
-          sum +
-          b.gpuCounts.reduce(
-            (iSum, count, idx) => iSum + count * GPU_TYPES[idx].income,
-            0,
-          )
-        );
-      }, 0);
-      setState(s => ({...s, money: s.money + income}));
+      setState(s => tick(s));
     }, 1000);
     return () => clearInterval(interval);
-  }, [state.buildings]);
+  }, []);
 
   const goBack = () => setSelectedBuilding(null);
 
