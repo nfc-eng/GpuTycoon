@@ -90,7 +90,7 @@ function BuildingDetail({ index, goBack }) {
   const b = state.buildings[index];
 
   const buyGPU = () => {
-    if (state.money >= b.gpuCost) {
+    if (state.money >= b.gpuCost && b.gpus < b.size.capacity) {
       const updated = [...state.buildings];
       updated[index].gpus += 1;
       updated[index].incomePerTick += b.gpuIncome;
