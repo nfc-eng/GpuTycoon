@@ -48,6 +48,47 @@ Game about building a data center business
 4. Implement global map expansion and prestige mechanics.
 5. Launch to App Store with live‑ops events and in‑app purchases.
 
-## 🤝 Contributing
 
-Feel free to open issues or PRs for new features, bug fixes, or UI improvements. Let’s build the ultimate data center idle sim!
+# Contribution Tenets for Data Center Simulator
+
+1. **Favor Simplicity Over Cleverness**  
+   - Strive for clear, straightforward solutions.  
+   - Avoid “clever” one-liners if they obscure intent.
+
+2. **Prioritize Readability & Legibility**  
+   - Use descriptive names for variables, functions, and components.  
+   - Keep line lengths reasonable and break complex logic into small helpers.
+
+3. **Design for Extensibility**  
+   - Anticipate future features (e.g. new building tiers, cooling systems).  
+   - Prefer well-defined interfaces and component props over ad-hoc hacks.
+
+4. **Keep Components Modular**  
+   - One component = one responsibility.  
+   - Extract shared UI or logic into reusable modules/hooks.
+
+5. **Adhere to “YAGNI” & “DRY”**  
+   - Don’t implement features until they’re actually needed.  
+   - Avoid duplicate code—abstract common patterns into utilities.
+
+6. **Maintain Consistent Style**  
+   - Follow the project’s ESLint/Prettier rules without exception.  
+   - Stick to the established color palette, spacing, and typography.
+
+7. **Test and Validate**  
+   - Write unit tests for business logic (e.g. income ticks, cost calculations).  
+   - Smoke-test critical flows (buy building, buy GPU, upgrade cooling).
+
+8. **Document as You Go**  
+   - Update JSDoc or inline comments when API signatures change.  
+   - Keep the README and roadmap in sync with merged features.
+
+9. **Respect Platform & Accessibility**  
+   - Wrap everything in `SafeAreaView` and account for notches/status bars.  
+   - Use accessible roles/labels on touchables and support dynamic font sizing.
+
+10. **Collaborate Through Reviews**  
+    - Submit small, focused pull requests.  
+    - Provide context in descriptions and link to relevant tickets.  
+    - Give and seek constructive feedback; treat reviews as learning opportunities.
+
