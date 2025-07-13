@@ -1,4 +1,8 @@
-import {computePerformanceMultiplier, tick} from '../src/utils/simEngine';
+import {
+  computePerformanceMultiplier,
+  computePowerCost,
+  tick,
+} from '../src/utils/simEngine';
 import {createBuilding} from '../src/utils/gameActions';
 import SIZE_PRESETS from '../src/constants/sizePresets';
 import GPU_TYPES from '../src/constants/gpuTypes';
@@ -18,15 +22,15 @@ describe('cooling & throttling system', () => {
     const state = {money: 0, buildings: [b]};
 
     let s = tick(state); // tick1
-    expect(s.money).toBeCloseTo(10);
+    expect(s.money).toBeCloseTo(9);
     expect(s.buildings[0].currentHeat).toBe(10);
     expect(s.buildings[0].throttleState).toBe('Yellow');
     s = tick(s); // tick2
-    expect(s.money).toBeCloseTo(15);
+    expect(s.money).toBeCloseTo(13);
     expect(s.buildings[0].currentHeat).toBe(20);
     expect(s.buildings[0].throttleState).toBe('Red');
     s = tick(s); // tick3
-    expect(s.money).toBeCloseTo(20);
+    expect(s.money).toBeCloseTo(17);
     expect(s.buildings[0].currentHeat).toBe(30);
     expect(s.buildings[0].throttleState).toBe('Red');
   });
