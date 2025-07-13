@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {View, Text, TouchableOpacity, StyleSheet, ScrollView} from 'react-native';
 import {useGame} from '../context/GameContext';
 import GPU_TYPES from '../constants/gpuTypes';
 import {
@@ -31,7 +31,7 @@ export default function BuildingDetail({index, goBack}) {
   const usedRacks = b.gpuCounts.reduce((sum, c) => sum + c, 0);
 
   return (
-    <View style={styles.detailContainer}>
+    <ScrollView contentContainerStyle={styles.detailContainer} testID="detail-scroll">
       <TouchableOpacity onPress={goBack} style={styles.backButton}>
         <Text style={styles.backText}>‹ Back</Text>
       </TouchableOpacity>
@@ -97,7 +97,7 @@ export default function BuildingDetail({index, goBack}) {
           Upgrade Cooling (${b.cooling.costs[b.cooling.tier]})
         </Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 }
 
