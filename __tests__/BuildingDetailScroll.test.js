@@ -5,13 +5,24 @@ import renderer, {act} from 'react-test-renderer';
 jest.mock('react-native', () => {
   const React = require('react');
   const RN = {};
-  ['View', 'Text', 'TouchableOpacity', 'ScrollView'].forEach(tag => {
+  ['View', 'Text', 'TouchableOpacity', 'ScrollView', 'SafeAreaView'].forEach(tag => {
     RN[tag] = props => React.createElement(tag, props, props.children);
   });
   RN.StyleSheet = {create: styles => styles};
   RN.useColorScheme = () => 'dark';
   return RN;
 });
+jest.mock(
+  '@expo/vector-icons',
+  () => {
+    const React = require('react');
+    return {
+      MaterialCommunityIcons: props =>
+        React.createElement('MaterialCommunityIcons', props, props.children),
+    };
+  },
+  {virtual: true},
+);
 import BuildingDetail from '../src/components/BuildingDetail';
 import GameContext from '../src/context/GameContext';
 import {createBuilding} from '../src/utils/gameActions';
