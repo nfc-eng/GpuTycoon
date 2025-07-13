@@ -1,47 +1,45 @@
 // App.js
 import React, { useState, useEffect, createContext, useContext } from 'react';
-import { SafeAreaView, View, Text, TouchableOpacity, StyleSheet, FlatList, StatusBar, Platform } from 'react-native';
+import {
+  SafeAreaView,
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  FlatList,
+  StatusBar,
+  Platform,
+} from 'react-native';
+import { Game, SIZE_PRESETS } from './src/game';
 
 // --- Game Context ---
 const GameContext = createContext();
 export const useGame = () => useContext(GameContext);
 
-// --- Building Size Presets ---
-const SIZE_PRESETS = [
-  { label: 'Small (10 racks)', capacity: 10, costMultiplier: 1, purchaseCost: 1000 },
-  { label: 'Medium (100 racks)', capacity: 100, costMultiplier: 3, purchaseCost: 10000 },
-  { label: 'Large (1k racks)', capacity: 1000, costMultiplier: 5, purchaseCost: 100000 },
-  { label: 'Mega (10k racks)', capacity: 10000, costMultiplier: 7, purchaseCost: 1000000 },
-];
-
 // --- Initial State ---
-const initialState = {
-  money: SIZE_PRESETS[0].purchaseCost + 2 * (100 * Math.pow(2, SIZE_PRESETS[0].costMultiplier)),
-  buildings: [],
-};
+const initialState = Game.createInitial();
 
 export default function App() {
-  const [state, setState] = useState(initialState);
+  const [game, setGame] = useState(initialState);
   const [selectedBuilding, setSelectedBuilding] = useState(null);
 
   // Idle income timer
   useEffect(() => {
     const interval = setInterval(() => {
-      const income = state.buildings.reduce((sum, b) => sum + b.incomePerTick, 0);
-      setState(s => ({ ...s, money: s.money + income }));
+      setGame(g => g.tick());
     }, 1000);
     return () => clearInterval(interval);
-  }, [state.buildings]);
+  }, []);
 
   const goBack = () => setSelectedBuilding(null);
 
   return (
-    <GameContext.Provider value={{ state, setState, setSelectedBuilding }}>
+    <GameContext.Provider value={{ game, setGame, setSelectedBuilding }}>
       <SafeAreaView style={styles.safeArea}>
         <StatusBar barStyle="light-content" />
         <View style={styles.headerContainer}>
           <Text style={styles.header}>Data Center Simulator</Text>
-          <Text style={styles.money}>${state.money.toFixed(2)}</Text>
+          <Text style={styles.money}>${game.money.toFixed(2)}</Text>
         </View>
         {selectedBuilding !== null ? (
           <BuildingDetail index={selectedBuilding} goBack={goBack} />
@@ -49,7 +47,7 @@ export default function App() {
           <>
             <FlatList
               contentContainerStyle={styles.list}
-              data={state.buildings}
+              data={game.buildings}
               keyExtractor={(_, idx) => idx.toString()}
               renderItem={({ item, index }) => <BuildingItem building={item} index={index} />}
             />
@@ -86,25 +84,15 @@ function BuildingItem({ building, index }) {
 }
 
 function BuildingDetail({ index, goBack }) {
-  const { state, setState } = useGame();
-  const b = state.buildings[index];
+  const { game, setGame } = useGame();
+  const b = game.buildings[index];
 
   const buyGPU = () => {
-    if (state.money >= b.gpuCost) {
-      const updated = [...state.buildings];
-      updated[index].gpus += 1;
-      updated[index].incomePerTick += b.gpuIncome;
-      setState(s => ({ ...s, money: s.money - b.gpuCost, buildings: updated }));
-    }
+    setGame(g => g.buyGPU(index));
   };
 
   const upgradeCooling = () => {
-    const { tier, costs } = b.cooling;
-    if (tier < costs.length - 1 && state.money >= costs[tier]) {
-      const updated = [...state.buildings];
-      updated[index].cooling.tier += 1;
-      setState(s => ({ ...s, money: s.money - costs[tier], buildings: updated }));
-    }
+    setGame(g => g.upgradeCooling(index));
   };
 
   return (
@@ -136,22 +124,12 @@ function BuildingDetail({ index, goBack }) {
 }
 
 function AddBuildingButton() {
-  const { state, setState } = useGame();
+  const { game, setGame } = useGame();
   const [showOptions, setShowOptions] = useState(false);
 
   const add = preset => {
-    if (state.money >= preset.purchaseCost) {
-      const newB = {
-        size: preset,
-        gpus: 0,
-        gpuCost: 100 * Math.pow(2, preset.costMultiplier),
-        gpuIncome: 1,
-        incomePerTick: 0,
-        cooling: { tier: 0, costs: [500 * preset.costMultiplier, 2000 * preset.costMultiplier, 10000 * preset.costMultiplier] },
-      };
-      setState(s => ({ ...s, money: s.money - preset.purchaseCost, buildings: [...s.buildings, newB] }));
-      setShowOptions(false);
-    }
+    setGame(g => g.addBuilding(preset));
+    setShowOptions(false);
   };
 
   return showOptions ? (
