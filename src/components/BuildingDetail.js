@@ -1,27 +1,18 @@
 import React from 'react';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import {useGame} from '../context/GameContext';
+import {buyGPU as buyGPUAction, upgradeCooling as upgradeCoolingAction} from '../utils/gameActions';
 
 export default function BuildingDetail({index, goBack}) {
   const {state, setState} = useGame();
   const b = state.buildings[index];
 
   const buyGPU = () => {
-    if (state.money >= b.gpuCost && b.gpus < b.size.capacity) {
-      const updated = [...state.buildings];
-      updated[index].gpus += 1;
-      updated[index].incomePerTick += b.gpuIncome;
-      setState(s => ({...s, money: s.money - b.gpuCost, buildings: updated}));
-    }
+    setState(s => buyGPUAction(s, index));
   };
 
   const upgradeCooling = () => {
-    const {tier, costs} = b.cooling;
-    if (tier < costs.length - 1 && state.money >= costs[tier]) {
-      const updated = [...state.buildings];
-      updated[index].cooling.tier += 1;
-      setState(s => ({...s, money: s.money - costs[tier], buildings: updated}));
-    }
+    setState(s => upgradeCoolingAction(s, index));
   };
 
   return (
