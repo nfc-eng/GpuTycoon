@@ -1,4 +1,5 @@
 import GPU_TYPES from '../constants/gpuTypes';
+import POWER_TIERS from '../constants/powerTiers';
 
 export function createBuilding(preset) {
   return {
@@ -12,6 +13,14 @@ export function createBuilding(preset) {
         10000 * preset.costMultiplier,
       ],
     },
+    power: {
+      tier: 0,
+      capacity: POWER_TIERS[0].capacity,
+      costPerUnit: POWER_TIERS[0].cost,
+      costs: POWER_TIERS.map(t => t.purchaseCost),
+    },
+    currentPowerDraw: 0,
+    currentPowerCost: 0,
     currentHeat: 0,
     effectiveIncome: 0,
     throttleState: 'Green',
@@ -64,6 +73,31 @@ export function upgradeCooling(state, index) {
   return {
     ...state,
     money: state.money - costs[tier],
+    buildings: updated,
+  };
+}
+
+export function upgradePower(state, index) {
+  const building = state.buildings[index];
+  if (!building) return state;
+  const {tier, costs} = building.power;
+  if (tier >= costs.length - 1) return state;
+  const nextCost = costs[tier + 1];
+  if (state.money < nextCost) return state;
+  const updated = [...state.buildings];
+  const newTier = tier + 1;
+  updated[index] = {
+    ...building,
+    power: {
+      ...building.power,
+      tier: newTier,
+      capacity: POWER_TIERS[newTier].capacity,
+      costPerUnit: POWER_TIERS[newTier].cost,
+    },
+  };
+  return {
+    ...state,
+    money: state.money - nextCost,
     buildings: updated,
   };
 }

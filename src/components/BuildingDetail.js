@@ -2,7 +2,12 @@ import React from 'react';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import {useGame} from '../context/GameContext';
 import GPU_TYPES from '../constants/gpuTypes';
-import {buyGPU as buyGPUAction, upgradeCooling as upgradeCoolingAction} from '../utils/gameActions';
+import POWER_TIERS from '../constants/powerTiers';
+import {
+  buyGPU as buyGPUAction,
+  upgradeCooling as upgradeCoolingAction,
+  upgradePower as upgradePowerAction,
+} from '../utils/gameActions';
 
 export default function BuildingDetail({index, goBack}) {
   const {state, setState} = useGame();
@@ -14,6 +19,10 @@ export default function BuildingDetail({index, goBack}) {
 
   const upgradeCooling = () => {
     setState(s => upgradeCoolingAction(s, index));
+  };
+
+  const upgradePower = () => {
+    setState(s => upgradePowerAction(s, index));
   };
 
   const earnings = b.gpuCounts.reduce(
@@ -53,6 +62,22 @@ export default function BuildingDetail({index, goBack}) {
         <Text style={styles.label}>Heat:</Text>
         <Text style={styles.value}>{b.currentHeat.toFixed(1)}</Text>
       </View>
+      <View style={styles.row}>
+        <Text style={styles.label}>Power Draw:</Text>
+        <Text style={styles.value}>{b.currentPowerDraw.toFixed(1)} kW/s</Text>
+      </View>
+      <View style={styles.row}>
+        <Text style={styles.label}>Power Cost:</Text>
+        <Text style={styles.value}>${b.currentPowerCost.toFixed(2)}/s</Text>
+      </View>
+      <View style={styles.row}>
+        <Text style={styles.label}>Tier:</Text>
+        <View style={[styles.badge, {backgroundColor: '#007AFF'}]}>
+          <Text style={styles.badgeText}>
+            {POWER_TIERS[b.power.tier].label}
+          </Text>
+        </View>
+      </View>
       {GPU_TYPES.map((t, i) => (
         <View key={i} style={styles.gpuSection}>
           <View style={styles.row}>
@@ -76,6 +101,14 @@ export default function BuildingDetail({index, goBack}) {
           Upgrade Cooling (${b.cooling.costs[b.cooling.tier]})
         </Text>
       </TouchableOpacity>
+      <TouchableOpacity
+        onPress={upgradePower}
+        style={[styles.actionButton, styles.powerButton]}
+        disabled={b.power.tier >= b.power.costs.length - 1}>
+        <Text style={styles.buttonText}>
+          Upgrade Power ({`$${b.power.costs[b.power.tier + 1] || '-'}`})
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -92,6 +125,7 @@ const styles = StyleSheet.create({
   value: {color: '#FFF', fontSize: 14, fontWeight: '500'},
   actionButton: {backgroundColor: '#007AFF', padding: 12, borderRadius: 8, alignItems: 'center', marginVertical: 8},
   coolButton: {backgroundColor: '#FF9500'},
+  powerButton: {backgroundColor: '#5856D6'},
   buttonText: {color: '#FFF', fontSize: 16, fontWeight: '600'},
   badge: {borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4},
   badgeText: {color: '#FFF', fontSize: 12, fontWeight: 'bold'},

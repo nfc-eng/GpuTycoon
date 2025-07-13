@@ -1,6 +1,7 @@
 import React from 'react';
 import {TouchableOpacity, View, Text, StyleSheet} from 'react-native';
 import {useGame} from '../context/GameContext';
+import POWER_TIERS from '../constants/powerTiers';
 
 export default function BuildingItem({building, index}) {
   const {setSelectedBuilding} = useGame();
@@ -28,6 +29,20 @@ export default function BuildingItem({building, index}) {
       <View style={styles.row}>
         <Text style={styles.label}>Heat:</Text>
         <Text style={styles.value}>{building.currentHeat.toFixed(1)}</Text>
+      </View>
+      <View style={styles.row}>
+        <Text style={styles.label}>Power:</Text>
+        <Text style={styles.value}>
+          {building.currentPowerDraw.toFixed(1)} kW
+        </Text>
+      </View>
+      <View style={styles.row}>
+        <Text style={styles.label}>Power Tier:</Text>
+        <View style={[styles.badge, {backgroundColor: '#007AFF'}]}>
+          <Text style={styles.badgeText}>
+            {POWER_TIERS[building.power.tier].label}
+          </Text>
+        </View>
       </View>
     </TouchableOpacity>
   );
