@@ -14,16 +14,15 @@ export function tick(state) {
       0,
     );
 
-    let currentHeat = b.currentHeat + heatGenerated;
-
     const coolingCapacity = COOLING_CAPACITY[b.cooling.tier] || 0;
-    const heatDissipated = Math.min(currentHeat, coolingCapacity);
-    currentHeat = Math.max(0, currentHeat - heatDissipated);
 
+    const preCoolingHeat = b.currentHeat + heatGenerated;
     const performanceMultiplier = computePerformanceMultiplier(
-      currentHeat,
+      preCoolingHeat,
       coolingCapacity,
     );
+
+    const currentHeat = Math.max(0, preCoolingHeat - coolingCapacity);
 
     const baseIncome = b.gpuCounts.reduce(
       (sum, count, i) => sum + count * GPU_TYPES[i].income,
