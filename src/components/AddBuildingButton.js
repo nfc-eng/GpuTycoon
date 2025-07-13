@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {View, TouchableOpacity, Text, StyleSheet} from 'react-native';
 import {useGame} from '../context/GameContext';
 import SIZE_PRESETS from '../constants/sizePresets';
+import {addBuilding} from '../utils/gameActions';
 
 export default function AddBuildingButton() {
   const {state, setState} = useGame();
@@ -9,22 +10,7 @@ export default function AddBuildingButton() {
 
   const add = preset => {
     if (state.money >= preset.purchaseCost) {
-      const newB = {
-        size: preset,
-        gpus: 0,
-        gpuCost: 100 * Math.pow(2, preset.costMultiplier),
-        gpuIncome: 1,
-        incomePerTick: 0,
-        cooling: {
-          tier: 0,
-          costs: [
-            500 * preset.costMultiplier,
-            2000 * preset.costMultiplier,
-            10000 * preset.costMultiplier,
-          ],
-        },
-      };
-      setState(s => ({...s, money: s.money - preset.purchaseCost, buildings: [...s.buildings, newB]}));
+      setState(s => addBuilding(s, preset));
       setShowOptions(false);
     }
   };

@@ -2,5 +2,17 @@
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
     "react-native-paper": "4.9.2"
+  },
+  "devDependencies": {
+    "@babel/preset-typescript": "^7.27.1",
+    "@testing-library/jest-native": "^5.4.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/react-native": "^13.2.0",
+    "jest": "^30.0.4",
+    "metro-react-native-babel-preset": "^0.77.0",
+    "react-test-renderer": "^19.1.0"
+  },
+  "scripts": {
+    "test": "jest"
   }
 }
