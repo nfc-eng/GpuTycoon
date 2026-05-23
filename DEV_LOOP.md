@@ -90,22 +90,27 @@ echo "EXIT: $?"
 
 Delegate the diff to a separate evaluator subagent. Do NOT self-review — agents are bad at grading their own work.
 
+**Evaluator calibration:** The evaluator MUST be prompted to be skeptical and adversarial. It should assume the code is broken until proven otherwise. It should NOT give the benefit of the doubt.
+
 The evaluator receives:
 - The full `git diff`
-- The feature spec from `specs/<feature>.md`
+- The feature spec from `specs/<feature>.md` (this is the CONTRACT — grade against it)
 - The contribution tenets from `README.md`
+- Instructions: "You are a skeptical senior reviewer. Your job is to REJECT code that isn't production-ready. Be harsh. Find problems. Do not approve mediocre work."
 
 The evaluator grades against these criteria (each must score 3+/5 to pass):
 
 1. **Correctness:** Does the implementation match the spec? Edge cases handled?
-2. **Completeness:** Any TODOs, stubs, or placeholder implementations? (UNACCEPTABLE)
-3. **Test coverage:** Does the new code have corresponding tests?
+2. **Completeness:** Any TODOs, stubs, or placeholder implementations? (UNACCEPTABLE — instant fail)
+3. **Test coverage:** Does the new code have corresponding tests that actually assert behavior?
 4. **Style:** Matches contribution tenets? Readable? Modular?
 5. **No regressions:** Does the diff break existing functionality?
 
-**If evaluator fails any criterion:** it returns specific issues with file:line references. The generator fixes them and restarts the inner loop from Phase 1.
+**If evaluator fails any criterion:** it returns specific issues with file:line references and severity (CRITICAL/MAJOR/MINOR). The generator fixes CRITICAL and MAJOR issues, then restarts the inner loop from Phase 1.
 
 **If evaluator passes all criteria:** inner loop exits, proceed to Phase 5.
+
+**Inner loop context reset:** If the inner loop reaches iteration 3+, the generator's context is getting stale. At that point, summarize the evaluator's feedback into a brief handoff note and restart the generator with a fresh context window reading only: the spec, the handoff note, and the current code.
 
 ### Phase 5: Commit and Push
 
@@ -130,7 +135,7 @@ The following reject invalid code (in order of speed):
 
 1. `npm install` — catches dependency issues
 2. `npx jest` — catches logic errors, regressions
-3. Self-review diff check — catches stubs, style violations, missing tests
+3. Evaluator subagent — catches stubs, style violations, spec deviations, missing tests
 
 ## Context Preservation
 
