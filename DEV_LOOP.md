@@ -88,29 +88,67 @@ echo "EXIT: $?"
 
 ### Phase 4: Evaluator Review (SEPARATE AGENT)
 
-Delegate the diff to a separate evaluator subagent. Do NOT self-review — agents are bad at grading their own work.
+Delegate to a separate evaluator subagent. Do NOT self-review — agents are bad at grading their own work (Anthropic's harness research confirms this: agents confidently praise mediocre output).
 
-**Evaluator calibration:** The evaluator MUST be prompted to be skeptical and adversarial. It should assume the code is broken until proven otherwise. It should NOT give the benefit of the doubt.
+**Evaluator calibration:** The evaluator MUST be skeptical and adversarial. It assumes code is broken until proven otherwise. See `specs/evaluator-calibration.md` for few-shot grading examples.
 
-The evaluator receives:
+#### 4a. Start the App
+
+Before the evaluator runs, the generator MUST start the app for live validation:
+
+```bash
+cd /local/home/clenicho/workplace/ralph-test/GpuTycoon
+npx expo start --web --port 8081 &
+APP_PID=$!
+sleep 8  # wait for bundler
+```
+
+#### 4b. Evaluator Receives
+
 - The full `git diff`
 - The feature spec from `specs/<feature>.md` (this is the CONTRACT — grade against it)
 - The contribution tenets from `README.md`
-- Instructions: "You are a skeptical senior reviewer. Your job is to REJECT code that isn't production-ready. Be harsh. Find problems. Do not approve mediocre work."
+- The running app URL: `http://localhost:8081`
+- Instructions: "You are a skeptical senior QA engineer. Your job is to REJECT code that isn't production-ready. Be harsh. Find problems. Do not approve mediocre work. You MUST interact with the live app via Playwright before scoring."
 
-The evaluator grades against these criteria (each must score 3+/5 to pass):
+#### 4c. Live App Validation (Playwright)
+
+The evaluator MUST use Playwright MCP to validate the running app:
+
+1. **Navigate** to `http://localhost:8081`
+2. **Screenshot** the initial state — verify the app renders without crash
+3. **Interact** with the feature under test:
+   - Click buttons, navigate screens, trigger the new functionality
+   - Verify visual feedback matches spec expectations
+   - Check for console errors via `browser_console_messages`
+4. **Screenshot** the result state — verify UI updated correctly
+5. **Edge case probing** — try invalid inputs, rapid clicks, empty states
+
+The evaluator documents what it saw (screenshots are evidence, not just vibes).
+
+#### 4d. Grading Criteria
+
+Each criterion must score 3+/5 to pass:
 
 1. **Correctness:** Does the implementation match the spec? Edge cases handled?
 2. **Completeness:** Any TODOs, stubs, or placeholder implementations? (UNACCEPTABLE — instant fail)
 3. **Test coverage:** Does the new code have corresponding tests that actually assert behavior?
 4. **Style:** Matches contribution tenets? Readable? Modular?
-5. **No regressions:** Does the diff break existing functionality?
+5. **Live app works:** App renders, feature is interactive, no console errors, UI matches spec
+
+#### 4e. Termination
 
 **If evaluator fails any criterion:** it returns specific issues with file:line references and severity (CRITICAL/MAJOR/MINOR). The generator fixes CRITICAL and MAJOR issues, then restarts the inner loop from Phase 1.
 
-**If evaluator passes all criteria:** inner loop exits, proceed to Phase 5.
+**If evaluator passes all criteria:** kill the app server and proceed to Phase 5.
 
-**Inner loop context reset:** If the inner loop reaches iteration 3+, the generator's context is getting stale. At that point, summarize the evaluator's feedback into a brief handoff note and restart the generator with a fresh context window reading only: the spec, the handoff note, and the current code.
+```bash
+kill $APP_PID 2>/dev/null
+```
+
+#### 4f. Context Reset
+
+If the inner loop reaches iteration 3+, the generator's context is getting stale. Summarize the evaluator's feedback into a brief handoff note and restart the generator with a fresh context window reading only: the spec, the handoff note, and the current code.
 
 ### Phase 5: Commit and Push
 
