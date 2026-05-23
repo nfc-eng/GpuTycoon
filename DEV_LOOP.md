@@ -21,17 +21,23 @@ Fully autonomous development loop for this React Native idle game. The loop repe
 ## The Outer Loop
 
 ```
-LOOP (max 5 iterations):
-  Phase 0: Orient — read FEATURES.md, find next unimplemented feature
-  Phase 0.5: Grill — run GRILL.md against the feature, produce specs/<feature>.md
-  Phase 1: Implement against the grilled spec
-  Phase 2: Install deps + build check → on fail: fix, retry
-  Phase 3: Run tests → on fail: fix, retry Phase 2
-  Phase 4: Self-review (adversarial) → issues found: fix, restart Phase 2
+OUTER LOOP (iterates over features from FEATURES.md):
+  Phase 0: Orient — find next unimplemented feature
+  Phase 0.5: Grill — run GRILL.md, produce specs/<feature>.md
+
+  INNER LOOP (max 5 iterations — until evaluator passes):
+    Phase 1: Implement against the grilled spec
+    Phase 2: Install deps + build check → on fail: fix, retry
+    Phase 3: Run tests → on fail: fix, retry Phase 2
+    Phase 4: Delegate to EVALUATOR subagent — separate agent reviews the diff
+      → Evaluator finds issues: fix them, restart inner loop from Phase 1
+      → Evaluator passes: break inner loop
+  END INNER LOOP
+
   Phase 5: Commit and push
   Phase 6: Update AGENT.md with any learnings
-  → EXIT (outer Ralph loop will restart you for the next feature)
-END LOOP
+  → Next feature (outer loop restarts)
+END OUTER LOOP
 ```
 
 ## Phase Details
@@ -80,25 +86,26 @@ echo "EXIT: $?"
 - Exit non-zero = failures → read output, fix, go back to Phase 2
 - Up to 5 retries before escalating
 
-### Phase 4: Self-Review (Adversarial)
+### Phase 4: Evaluator Review (SEPARATE AGENT)
 
-Before committing, review your own diff critically:
+Delegate the diff to a separate evaluator subagent. Do NOT self-review — agents are bad at grading their own work.
 
-```bash
-cd /local/home/clenicho/workplace/ralph-test/GpuTycoon
-git diff --stat
-git diff
-```
+The evaluator receives:
+- The full `git diff`
+- The feature spec from `specs/<feature>.md`
+- The contribution tenets from `README.md`
 
-Check against these criteria (score each 1-5, anything below 3 = must fix):
+The evaluator grades against these criteria (each must score 3+/5 to pass):
 
-1. **Correctness:** Does the implementation actually work? Edge cases handled?
+1. **Correctness:** Does the implementation match the spec? Edge cases handled?
 2. **Completeness:** Any TODOs, stubs, or placeholder implementations? (UNACCEPTABLE)
 3. **Test coverage:** Does the new code have corresponding tests?
 4. **Style:** Matches contribution tenets? Readable? Modular?
-5. **No regressions:** Did you break existing functionality?
+5. **No regressions:** Does the diff break existing functionality?
 
-If ANY criterion scores below 3, fix it and restart from Phase 2.
+**If evaluator fails any criterion:** it returns specific issues with file:line references. The generator fixes them and restarts the inner loop from Phase 1.
+
+**If evaluator passes all criteria:** inner loop exits, proceed to Phase 5.
 
 ### Phase 5: Commit and Push
 
