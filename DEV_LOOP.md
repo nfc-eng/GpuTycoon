@@ -22,13 +22,15 @@ Fully autonomous development loop for this React Native idle game. The loop repe
 
 ```
 LOOP (max 5 iterations):
-  Phase 1: Pick task + implement code
+  Phase 0: Orient — read FEATURES.md, find next unimplemented feature
+  Phase 0.5: Grill — run GRILL.md against the feature, produce specs/<feature>.md
+  Phase 1: Implement against the grilled spec
   Phase 2: Install deps + build check → on fail: fix, retry
   Phase 3: Run tests → on fail: fix, retry Phase 2
   Phase 4: Self-review (adversarial) → issues found: fix, restart Phase 2
   Phase 5: Commit and push
   Phase 6: Update AGENT.md with any learnings
-  → EXIT (outer Ralph loop will restart you for the next item)
+  → EXIT (outer Ralph loop will restart you for the next feature)
 END LOOP
 ```
 
@@ -41,6 +43,14 @@ END LOOP
 3. Pick the SINGLE most important unimplemented feature
 4. Read `README.md` contribution tenets — follow them strictly
 5. Read `AGENT.md` if it exists — it has learnings from prior loops
+
+### Phase 0.5: Grill (spec generation)
+
+Follow `GRILL.md` in autonomous mode:
+- Walk through all question categories for the chosen feature
+- Self-answer using codebase context and game design principles
+- Output a spec to `specs/<feature-name>.md`
+- The spec becomes the contract for Phase 1 — implement EXACTLY what it says
 
 ### Phase 1: Implement
 
